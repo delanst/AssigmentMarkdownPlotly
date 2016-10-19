@@ -1,0 +1,58 @@
+---
+title: "Week 3 assignment plotly"
+author: "Stefaan Delanghe"
+date: "10/19/2016"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(plyr)
+```
+
+## Airports Belgium
+
+The goal of this assignment is to plot all possible airports in Belgium. Aside from the international airport we have medium and small airports that surve as landing strips.
+
+With a many thanks to HDX for the provision of the data set
+[HDX](https://data.humdata.org/dataset/ourairports-bel)
+
+Here follows a list of what we will do with the data.
+
+- download the airports from Belgium.
+- clean and tidy up the data.
+- plot the airports on a ploty graph.
+
+## Download data
+### Here we download the file from HDX website.
+```{r download, echo = TRUE, cache=TRUE}
+download.file("http://ourairports.com/countries/BE/airports.hxl", 
+              destfile = "be-airports.csv")
+```
+
+### Now we clean and tidy up the data
+```{r tidy, echo = TRUE}
+airports <- read.csv("be-airports.csv", header = T)
+airportNames <- c("longitude_deg", "latitude_deg", "name")
+col.num <- which(colnames(airports) %in% airportNames)
+airportMarkers <- data.frame(airports[,col.num])
+airportMarkers <- airportMarkers[-1,]
+airportMarkers <- rename(airportMarkers, 
+        c("latitude_deg"="lat", "longitude_deg"="lng", "name"="popup"))
+```
+airportMarkers contains the data for belgium airports and will be used to plot.
+
+## Plot airports in plotly
+
+```{r plot, echo = FALSE,message=FALSE}
+library(plotly)
+set.seed(12345)
+plot_ly(data = airportMarkers, x = ~lat, y = ~lng,
+  marker = list(size = 10,
+                       color = 'rgba(255, 182, 193, .9)',
+                       line = list(color = 'rgba(152, 0, 0, .8)',
+                                   width = 2))) %>%
+  layout(title = 'Latitude longitude belgium airports.',
+         yaxis = list(zeroline = FALSE),
+         xaxis = list(zeroline = FALSE))
+```
